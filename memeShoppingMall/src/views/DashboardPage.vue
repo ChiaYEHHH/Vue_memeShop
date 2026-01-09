@@ -1,41 +1,49 @@
 <template>
-  <h1>DashboardPage</h1>
+  <div class="container-fluid">
+    <p>dashboard</p>
+
+    <router-view />
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/utilss/api'
 
 const router = useRouter()
 const isAuthenticated = ref(false)
+
 const tokenAuth = async () => {
   try {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,"$1",);
-    console.log(`output->token`,token)
+    // 正確的 cookie 解析方式
+    const token = document.cookie.split('; ').find(row => row.startsWith('hexToken='))?.split('=')[1]
 
     if (!token) {
       console.log('No token found')
       router.push('/login')
       return
     }
-    // import
-    axios.defaults.headers.common['Authorization'] = token
-    // 使用環境變數構建完整的 API URL
-    const apiAuth = `${import.meta.env.VITE_API_URL}v2/api/user/check`
-    // // 發送 POST 請求
-    const resAuth = await axios.post(apiAuth)
-    console.log(`output->resAuth`,resAuth)
+
+    // 使用 api 實例發送請求（會自動帶上 Authorization Header）
+    const resAuth = await api.post('v2/api/user/check')
+
     if (resAuth.data.success) {
+      console.log('登入成功')
       isAuthenticated.value = true
     } else {
+      console.log('登入錯誤:', resAuth.data)
+
       router.push('/login')
     }
   } catch (error) {
     console.error('登入錯誤:', error)
     console.error('錯誤詳情:', error.response?.data)
+    // 在錯誤時也要跳轉回登入頁
+    router.push('/login')
   }
 }
+
 // 組件掛載時檢查認證
 onMounted(() => {
   tokenAuth()
