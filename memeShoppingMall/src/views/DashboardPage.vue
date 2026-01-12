@@ -1,9 +1,8 @@
 <template>
-  <div class="container-fluid">
-    <p>dashboard</p>
+  <!-- <div class="container-fluid"> -->
 
     <router-view />
-  </div>
+  <!-- </div> -->
 </template>
 
 <script setup>

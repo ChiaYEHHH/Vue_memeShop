@@ -2,9 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min'
 
-// 接收外部 product
+// 接收外部 delItem
 const props = defineProps({
-  product: {
+  delItem: {
     type: Object,
     default: () => ({})
   }
@@ -28,7 +28,7 @@ function hide () {
 }
 
 function onDelete () {
-  emit('delete', props.product)
+  emit('delete', props.delItem)
   hide()
 }
 
