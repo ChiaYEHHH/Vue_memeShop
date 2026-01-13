@@ -22,7 +22,7 @@ const form = reactive({
   percent: '',
   due_date: '',
   code: '',
-  is_enabled: '',
+  is_enabled: 0,
 })
 
 // 4) Modal 實體
@@ -33,13 +33,14 @@ let modalInstance = null
 watch(
   () => props.coupon,
   (val) => {
-    if (val) {
+    if (val && val.id) {
       form.id = val.id ?? ''
       form.title = val.title ?? ''
       form.percent = val.percent ?? ''
-      form.due_date = val.due_date ?? ''
+      // 如果 due_date 已經是 datetime-local 格式則直接使用，否則轉換
+      form.due_date = dayjs(val.due_date).tz('Asia/Taipei').format('YYYY-MM-DDTHH:mm')??''
       form.code = val.code ?? ''
-      form.is_enabled = val.is_enabled ?? ''
+      form.is_enabled = val.is_enabled ?? 0
     } else {
       // 新增情境：清空
       resetForm()
@@ -54,7 +55,7 @@ function resetForm () {
   form.percent = ''
   form.due_date = ''
   form.code = ''
-  form.is_enabled = ''
+  form.is_enabled = 0
 }
 
 function show () {
@@ -64,9 +65,9 @@ function show () {
     form.id = props.coupon.id??''
     form.title = props.coupon.title??''
     form.percent = props.coupon.percent??''
-    form.due_date = props.coupon.due_date??''
+    form.due_date = dayjs(props.coupon.due_date).tz('Asia/Taipei').format('YYYY-MM-DDTHH:mm')??''
     form.code = props.coupon.code??''
-    form.is_enabled = props.coupon.is_enabled??0
+    form.is_enabled = props.coupon.is_enabled ?? 0
   } else {
     // 新增情境
     resetForm()

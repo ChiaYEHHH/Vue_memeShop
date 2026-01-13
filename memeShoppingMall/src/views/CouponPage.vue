@@ -40,14 +40,11 @@ const couponAllList = async (page = 1) => {
     }
     // ⭐ 步驟 3: 驗證 token 是否存在
     // `api` 的請求攔截器會自動把 token 加到 Authorization header，所以這裡不需要手動設置
-    // console.log('2. Authorization Header 將由 api 攔截器自動處理')
-
     // ⭐ 步驟 4: 建構 API 相對路徑並加入分頁參數（讓 api.baseURL 生效）
     const couponsList = `v2/api/${import.meta.env.VITE_API_PATH}/admin/coupons`
 
     // ⭐ 步驟 5: 使用已配置好的 `api` 發送 GET 請求（包含 timeout & Authorization 攔截器）
     const resAuth = await api.get(couponsList)
-    // console.log(`output->resAuth`,resAuth)
     if (resAuth.data.success) {
       couponList.value = resAuth.data.coupons
       // 將每個優惠券的 due_date（timestamp）轉換成 datetime-local 格式用於編輯表單
@@ -64,7 +61,6 @@ const couponAllList = async (page = 1) => {
       errorMessage.value = '無法取得優惠卷資料'
       isLoading.value = false
     }
-    console.log(`output->couponList1`, couponList.value)
   } catch (error) {
     console.error('錯誤詳情:', error.response?.data)
 
@@ -73,7 +69,6 @@ const couponAllList = async (page = 1) => {
 }
 
 const addCoupon = () => {
-  console.log('新增優惠卷')
   // TODO: 實作新增產品功能
   tempCoupon.value = null
   couponModalRef.value.show() // 新增：清空並開啟
@@ -81,13 +76,11 @@ const addCoupon = () => {
 
 const editItem = (item) => {
   tempCoupon.value = item
-  console.log(item)
   couponModalRef.value.show(item) // 編輯：載入 item 並開啟
 }
 
 const delItem = (item) => {
   tempCoupon.value = item
-  console.log(item)
   // 開啟刪除 Modal
   deleteModalRef.value.show(item)
 }
@@ -95,14 +88,13 @@ const delItem = (item) => {
 const handleDelete = async (item) => {
   const delcoupon = `v2/api/${import.meta.env.VITE_API_PATH}/admin/coupon/${item.id}`
   const delResult = await api.delete(delcoupon)
-  console.log(`output->delResult`, delResult)
+  toastMsg.value = {
+    title: delResult.data.message,
+    content: delResult.data.message,
+  }
   if (delResult.data.success) {
-    toastMsg.value = { title: '刪除成功', content: delResult.data.message, style: 'success' }
-    console.log('刪除成功')
+    toastMsg.value.style = 'success'
     await couponAllList(currentPage.value)
-  } else {
-    toastMsg.value = { title: '刪除失敗', content: delResult.data.message, style: 'danger' }
-    console.log('刪除失敗')
   }
 }
 
@@ -113,32 +105,29 @@ const handleSave = async (payload) => {
   try {
     let resHandleSave = null
     const saveData = { data: tempCoupon.value }
-    console.log(`tempCoupon.value`, tempCoupon.value)
     if (tempCoupon.value.id) {
       // 編輯更新
       const editRrl = `v2/api/${import.meta.env.VITE_API_PATH}/admin/coupon/${tempCoupon.value.id}`
       resHandleSave = await api.put(editRrl, saveData)
-      // msgToast.title = "更新成功";
-      // msgToast.content = resHandleSave.data.message;
     } else {
       // 新增
       const addApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/coupon`
       resHandleSave = await api.post(addApi, saveData)
-      // msgToast.title = "新增成功";
-      // msgToast.content = resHandleSave.data.message;
+    }
+    toastMsg.value = {
+      title: resHandleSave.data.message,
+      content: resHandleSave.data.message,
     }
     if (resHandleSave.data.success) {
-      console.log('save success')
-
-      toastMsg.value = {
-        title: resHandleSave.data.message,
-        content: resHandleSave.data.message,
-        style: 'success',
-      }
+      toastMsg.value.style = 'success'
       await couponAllList(currentPage.value)
     }
+
   } catch (error) {
-    console.log('save fail', error)
+    toastMsg.value = {
+      title: error.message,
+      content: error.response.data.message[0],
+    }
   } finally {
     isLoading.value = false
   }
@@ -177,9 +166,6 @@ onMounted(() => {
         <td class="text-start">{{ item.percent }}%</td>
         <td class="text-start">{{ item.due_date }}</td>
         <td class="text-center">
-          <!-- <span class="badge" :class="item.is_enabled ? 'bg-success' : 'bg-secondary'">
-            {{ item.is_enabled ? '啟用' : '未啟用' }}
-          </span> -->
           <span class="badge bg-success" v-if="item.is_enabled">啟用</span>
           <span class="badge bg-secondary" v-else>未啟用</span>
         </td>

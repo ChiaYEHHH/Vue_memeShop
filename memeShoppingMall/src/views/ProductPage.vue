@@ -40,14 +40,11 @@ const productAllList = async (page = 1) => {
     }
     // ⭐ 步驟 3: 驗證 token 是否存在
     // `api` 的請求攔截器會自動把 token 加到 Authorization header，所以這裡不需要手動設置
-    // console.log('2. Authorization Header 將由 api 攔截器自動處理')
-
     // ⭐ 步驟 4: 建構 API 相對路徑並加入分頁參數（讓 api.baseURL 生效）
     const productsList = `v2/api/${import.meta.env.VITE_API_PATH}/admin/products?page=${page}`
 
     // ⭐ 步驟 5: 使用已配置好的 `api` 發送 GET 請求（包含 timeout & Authorization 攔截器）
     const resAuth = await api.get(productsList)
-    // console.log(`output->resAuth`,resAuth)
     if (resAuth.data.success) {
       productList.value = resAuth.data.products
       pages.value = resAuth.data.pagination
@@ -57,7 +54,6 @@ const productAllList = async (page = 1) => {
       errorMessage.value = '無法取得產品資料'
       isLoading.value = false
     }
-    // console.log(`output->productList`,productList.value)
   } catch (error) {
     console.error('錯誤詳情:', error.response?.data)
 
@@ -66,8 +62,6 @@ const productAllList = async (page = 1) => {
 }
 
 const addProduct = () => {
-  console.log('新增產品')
-  // TODO: 實作新增產品功能
   tempProduct.value = null
   productModalRef.value.show() // 新增：清空並開啟
 }
@@ -86,52 +80,57 @@ const delItem = (item) => {
 }
 
 const handleDelete = async (item) => {
-  const delproduct = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${item.id}`
-  const delResult = await api.delete(delproduct)
-  console.log(`output->delResult`, delResult)
-  if (delResult.data.success) {
-    toastMsg.value = { title: '刪除成功', content: delResult.data.message, style: 'success' }
-    console.log('刪除成功')
-    await productAllList(currentPage.value)
-  } else {
-    toastMsg.value = { title: '刪除失敗', content: delResult.data.message, style: 'danger' }
-    console.log('刪除失敗')
+  isLoading.value = true
+  try {
+    const delproductApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${item.id}`
+    const delResult = await api.delete(delproductApi)
+    // console.log(`output->delResult`, delResult)
+    toastMsg.value = {
+      title: delResult.data.message,
+      content: delResult.data.message,
+    }
+    if (delResult.data.success) {
+      toastMsg.value.style = 'success'
+      await productAllList(currentPage.value)
+    }
+  } catch (error) {
+    toastMsg.value = {
+      title: error.message,
+      content: error.response.data.message[0],
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 
 const handleSave = async (payload) => {
   tempProduct.value = payload
   isLoading.value = true
-  // const saveApi = "";
   try {
     let resHandleSave = null
     const saveData = { data: tempProduct.value }
-    console.log(`tempProduct.value`, tempProduct.value)
     if (tempProduct.value.id) {
       // 編輯更新
-      const editRrl = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${tempProduct.value.id}`
-      resHandleSave = await api.put(editRrl, saveData)
-      // msgToast.title = "更新成功";
-      // msgToast.content = resHandleSave.data.message;
+      const editApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${tempProduct.value.id}`
+      resHandleSave = await api.put(editApi, saveData)
     } else {
       // 新增
       const addApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product`
       resHandleSave = await api.post(addApi, saveData)
-      // msgToast.title = "新增成功";
-      // msgToast.content = resHandleSave.data.message;
+    }
+    toastMsg.value = {
+      title: resHandleSave.data.message,
+      content: resHandleSave.data.message,
     }
     if (resHandleSave.data.success) {
-      console.log('save success')
-
-      toastMsg.value = {
-        title: resHandleSave.data.message,
-        content: resHandleSave.data.message,
-        style: 'success',
-      }
+      toastMsg.value.style = 'success'
       await productAllList(currentPage.value)
     }
   } catch (error) {
-    console.log('save fail', error)
+    toastMsg.value = {
+      title: error.message,
+      content: error.response.data.message[0],
+    }
   } finally {
     isLoading.value = false
   }
@@ -161,11 +160,7 @@ onMounted(() => {
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="item in productList"
-        :key="item.id"
-
-      >
+      <tr v-for="item in productList" :key="item.id">
         <td>{{ item.category }}</td>
         <td>{{ item.title }}</td>
         <td class="text-right">{{ item.origin_price }}</td>
