@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch, onMounted} from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { Modal } from 'bootstrap/dist/js/bootstrap.bundle.min'
 import axios from 'axios'
 

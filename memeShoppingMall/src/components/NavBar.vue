@@ -99,7 +99,16 @@ const logout = async () => {
           </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link" @click.prevent="logout">Logout</a>
+          <router-link
+            to="/MeMeStore"
+            class="nav-link"
+            active-class="active"
+          >
+            Store
+          </router-link>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-danger" @click.prevent="logout">Logout</a>
         </li>
       </ul>
       <span class="navbar-text">

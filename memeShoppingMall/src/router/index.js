@@ -4,6 +4,7 @@ import DashboardPage from '@/views/DashboardPage.vue'
 import ProductPage from '@/views/ProductPage.vue'
 import OrderPage from '@/views/OrderPage.vue'
 import CouponPage from '@/views/CouponPage.vue'
+import ProductStore from '@/views/ProductStore.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +44,12 @@ const router = createRouter({
       name: 'couponList',
       component: CouponPage,
       meta: { requiresAuth: true } // 需要登入
+    },
+    {
+      path: '/MeMeStore',
+      name: 'productStore',
+      component: ProductStore,
+      meta: { requiresAuth: false } // 不需要登入
     },
   ],
 })
