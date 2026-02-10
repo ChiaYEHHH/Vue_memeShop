@@ -52,13 +52,13 @@ watch(
 )
 </script>
 <template>
-  <ul class="nav nav-underline justify-content-center mt-3">
-    <li class="nav-item"
+  <ul class="list-group justify-content-center mt-3">
+    <li class="list-group-item list-group-item-action"
       v-for="cat in categories"
       :key="cat"
     >
       <a
-        class="nav-link text-warning" href="#"
+        class="nav-link text-dark" href="#"
         @click.prevent="selectCategory(cat)"
         :class="{ 'active': localSelectedCategory === cat }"
       >

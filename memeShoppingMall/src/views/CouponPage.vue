@@ -140,46 +140,48 @@ onMounted(() => {
 </script>
 
 <template>
-  <loading :active="isLoading" :is-full-page="true" />
-  <msg-toast :msg="toastMsg" />
-  <div class="text-end p-3">
-    <button type="button" class="btn btn-primary" @click="addCoupon">新增</button>
-  </div>
-  <table class="table table-hover">
-    <thead class="table-light">
-      <tr>
-        <th>優惠名稱</th>
-        <th width="120">折扣碼</th>
-        <th width="120">折扣</th>
-        <th width="200">使用期限</th>
-        <th class="text-center" width="100">是否啟用</th>
-        <th width="200">編輯</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="item in couponList"
-        :key="item.id"
-      >
-        <td>{{ item.title }}</td>
-        <td>{{ item.code }}</td>
-        <td class="text-start">{{ item.percent }}%</td>
-        <td class="text-start">{{ item.due_date }}</td>
-        <td class="text-center">
-          <span class="badge bg-success" v-if="item.is_enabled">啟用</span>
-          <span class="badge bg-secondary" v-else>未啟用</span>
-        </td>
-        <td>
-          <div class="btn-group">
-            <button class="btn btn-outline-primary btn-sm" @click="editItem(item)">編輯</button>
-            <button class="btn btn-outline-danger btn-sm" @click="delItem(item)">刪除</button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <page-switch :pages="pages" @change-page="couponAllList" />
+  <div class="container">
+    <loading :active="isLoading" :is-full-page="true" />
+    <msg-toast :msg="toastMsg" />
+    <div class="text-end p-3">
+      <button type="button" class="btn btn-primary" @click="addCoupon">新增</button>
+    </div>
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>優惠名稱</th>
+          <th width="120">折扣碼</th>
+          <th width="120">折扣</th>
+          <th width="200">使用期限</th>
+          <th class="text-center" width="100">是否啟用</th>
+          <th width="200">編輯</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="item in couponList"
+          :key="item.id"
+        >
+          <td>{{ item.title }}</td>
+          <td>{{ item.code }}</td>
+          <td class="text-start">{{ item.percent }}%</td>
+          <td class="text-start">{{ item.due_date }}</td>
+          <td class="text-center">
+            <span class="badge bg-success" v-if="item.is_enabled">啟用</span>
+            <span class="badge bg-secondary" v-else>未啟用</span>
+          </td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-outline-primary btn-sm" @click="editItem(item)">編輯</button>
+              <button class="btn btn-outline-danger btn-sm" @click="delItem(item)">刪除</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <page-switch :pages="pages" @change-page="couponAllList" />
 
-  <coupon-modal ref="couponModalRef" :coupon="tempCoupon" @save="handleSave" />
-  <delete-modal ref="deleteModalRef" :delItem="tempCoupon" @delete="handleDelete" />
+    <coupon-modal ref="couponModalRef" :coupon="tempCoupon" @save="handleSave" />
+    <delete-modal ref="deleteModalRef" :delItem="tempCoupon" @delete="handleDelete" />
+  </div>
 </template>

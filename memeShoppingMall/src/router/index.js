@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from '@/views/LoginPage.vue'
 import DashboardPage from '@/views/DashboardPage.vue'
+import UserProduct from '@/views/UserProduct.vue'
 import ProductPage from '@/views/ProductPage.vue'
+import ProductDetailPage from '@/views/ProductDetailPage.vue'
 import OrderPage from '@/views/OrderPage.vue'
 import CouponPage from '@/views/CouponPage.vue'
 import ProductStore from '@/views/ProductStore.vue'
@@ -34,6 +36,18 @@ const router = createRouter({
       meta: { requiresAuth: true } // 需要登入
     },
     {
+      path: '/MeMeStore/userboard',
+      name: 'userProduct',
+      component: UserProduct,
+      meta: { requiresAuth: false } // 不需要登入
+    },
+    {
+      path: '/MeMeStore/userboard/productDetail/:id',
+      name: 'productDetail',
+      component: ProductDetailPage,
+      meta: { requiresAuth: false } // 不需要登入
+    },
+    {
       path: '/orderList',
       name: 'orderList',
       component: OrderPage,
@@ -45,7 +59,7 @@ const router = createRouter({
       component: CouponPage,
       meta: { requiresAuth: true } // 需要登入
     },
-    {
+    { //  主頁面
       path: '/MeMeStore',
       name: 'productStore',
       component: ProductStore,

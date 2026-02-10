@@ -9,6 +9,9 @@ import msgToast from '@/components/msgToast.vue'
 import pageSwitch from '@/components/pageSwitch.vue'
 import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/css/index.css'
+import { useDeleteHandler } from '@/composables/useDeleteHandler'
+import { useSaveHandler } from '@/composables/useSaveHandler'
+import { useToastMessage } from '@/composables/useToastMessage'
 
 const router = useRouter()
 const productList = ref([])
@@ -19,7 +22,23 @@ const productModalRef = ref(null)
 const deleteModalRef = ref(null)
 const isLoading = ref(false)
 const errorMessage = ref('')
-const toastMsg = ref({})
+
+const { toastMsg } = useToastMessage()
+const { handleDelete: deleteApiHandler } = useDeleteHandler(
+  'admin/product',
+  async () => {
+    await productAllList(currentPage.value)
+  },
+  { externalToastMsg: toastMsg },
+)
+
+const { handleSave: saveApiHandler } = useSaveHandler(
+  'admin/product',
+  async () => {
+    await productAllList(currentPage.value)
+  },
+  { externalToastMsg: toastMsg },
+)
 
 const productAllList = async (page = 1) => {
   isLoading.value = true
@@ -80,60 +99,12 @@ const delItem = (item) => {
 }
 
 const handleDelete = async (item) => {
-  isLoading.value = true
-  try {
-    const delproductApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${item.id}`
-    const delResult = await api.delete(delproductApi)
-    // console.log(`output->delResult`, delResult)
-    toastMsg.value = {
-      title: delResult.data.message,
-      content: delResult.data.message,
-    }
-    if (delResult.data.success) {
-      toastMsg.value.style = 'success'
-      await productAllList(currentPage.value)
-    }
-  } catch (error) {
-    toastMsg.value = {
-      title: error.message,
-      content: error.response.data.message[0],
-    }
-  } finally {
-    isLoading.value = false
-  }
+  await deleteApiHandler(item)
 }
 
 const handleSave = async (payload) => {
   tempProduct.value = payload
-  isLoading.value = true
-  try {
-    let resHandleSave = null
-    const saveData = { data: tempProduct.value }
-    if (tempProduct.value.id) {
-      // 編輯更新
-      const editApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product/${tempProduct.value.id}`
-      resHandleSave = await api.put(editApi, saveData)
-    } else {
-      // 新增
-      const addApi = `v2/api/${import.meta.env.VITE_API_PATH}/admin/product`
-      resHandleSave = await api.post(addApi, saveData)
-    }
-    toastMsg.value = {
-      title: resHandleSave.data.message,
-      content: resHandleSave.data.message,
-    }
-    if (resHandleSave.data.success) {
-      toastMsg.value.style = 'success'
-      await productAllList(currentPage.value)
-    }
-  } catch (error) {
-    toastMsg.value = {
-      title: error.message,
-      content: error.response.data.message[0],
-    }
-  } finally {
-    isLoading.value = false
-  }
+  await saveApiHandler(payload)
 }
 
 // 組件掛載時檢查認證
@@ -166,9 +137,6 @@ onMounted(() => {
         <td class="text-right">{{ item.origin_price }}</td>
         <td class="text-right">{{ item.price }}</td>
         <td class="text-center">
-          <!-- <span class="badge" :class="item.is_enabled ? 'bg-success' : 'bg-secondary'">
-            {{ item.is_enabled ? '啟用' : '未啟用' }}
-          </span> -->
           <span class="badge bg-success" v-if="item.is_enabled">啟用</span>
           <span class="badge bg-secondary" v-else>未啟用</span>
         </td>
